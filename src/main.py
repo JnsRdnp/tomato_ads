@@ -38,6 +38,9 @@ def main():
     kernestiHeitto = Button(kernestiPaikkaRect.x + kernestiPaikkaRect.width+10, height-48, 80, 40, "Heitä", (0, 0, 0), (255, 255, 255))
 
 
+    heitto = Button(width/2.25, height-55, 150, 30, "< HEITTO >", (0, 0, 0), (255, 255, 255))
+
+
     # Main game loop
     running = True
     while running:
@@ -61,6 +64,14 @@ def main():
                 
                 kernesti.start_throw_tomato(maalitaulu)
 
+            # Throw together
+            if heitto.is_clicked(event):
+                ernesti.start_throw_tomato(maalitaulu)
+                kernesti.start_throw_tomato(maalitaulu)
+
+
+
+
         # Fill the screen with a color (RGB)
         screen.fill((0, 128, 255))
 
@@ -75,6 +86,10 @@ def main():
 
         ernestiHeitto.draw(screen)
         kernestiHeitto.draw(screen)
+
+        heitto.draw(screen)
+
+        
 
 
         kernesti.update(screen)
