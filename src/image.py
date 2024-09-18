@@ -26,21 +26,15 @@ class Image:
             self.splatRect = self.splatImage.get_rect()
 
             self.tomaatti_in_motion = False
-            self.tomaatti_speed = 0.8  # Slower speed
+            self.tomaatti_speed = 0.8
 
             self.splat_shown = False
-            self.tomaatti_position = [0.0, 0.0]  # Use floating-point position
-            self.score = 0  # Initialize score
+            self.tomaatti_position = [0.0, 0.0]
+            self.score = 0
 
-            self.font = pygame.font.SysFont(None, 36)  # Font for displaying score
+            self.font = pygame.font.SysFont(None, 36)
 
-            # Remove sound initialization
-            # pygame.mixer.init()
-            # self.flyingsound = pygame.mixer.Sound(os.path.join("assets", "flyingsound.wav"))
             self.splatsound = pygame.mixer.Sound(os.path.join("assets", "splatsound.wav"))
-
-            # self.flyingsound.set_volume(0.5)  # Adjust volume as needed
-            # self.flyingsound_playing = False
 
     def resize(self, width, height):
         self.image = pygame.transform.scale(self.original_image, (width, height))
@@ -62,7 +56,7 @@ class Image:
 
         if self.isPlayer:
             self.tomaattiRect.topleft = (x_pos + 80, y_pos + 10)
-            self.tomaatti_position = [float(x_pos + 80), float(y_pos + 10)]  # Initialize floating-point position
+            self.tomaatti_position = [float(x_pos + 80), float(y_pos + 10)]
 
     def flip(self, horizontal=False, vertical=False):
         self.image = pygame.transform.flip(self.image, horizontal, vertical)
@@ -75,85 +69,62 @@ class Image:
             if self.splat_shown:
                 screen.blit(self.splatImage, self.splatRect.topleft)
             
-            # Display the score
-            score_text = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
+            if self.score > 2:
+                score_text = self.font.render("Voittaja!", True, (255, 255, 255))
+            else:
+                score_text = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
             screen.blit(score_text, (self.rect.x, self.rect.y + self.rect.height + 10))
 
     def start_throw_tomato(self, target):
-        """Initiates the tomato throw towards the target."""
         print("Tomaatti lentää")
         self.tomaatti_in_motion = True
         self.target = target
         self.splat_shown = False
-        
-        # Remove flying sound play code
-        # if not self.flyingsound_playing:
-        #     self.flyingsound.play(-1)  # Play the sound in a loop
-        #     self.flyingsound_playing = True
 
     def update_tomato_position(self):
-        """Updates the tomato's position if it's being thrown."""
         if self.tomaatti_in_motion:
-            # Move the tomato towards the target
             target_x, target_y = self.target.rect.center
-            current_x, current_y = self.tomaatti_position  # Use floating-point position
+            current_x, current_y = self.tomaatti_position
             
             direction_x = target_x - current_x
             direction_y = target_y - current_y
             
-            # Normalize direction vector and move the tomato by its speed
             distance = (direction_x**2 + direction_y**2) ** 0.5
             if distance != 0:
                 direction_x /= distance
                 direction_y /= distance
 
-            # Update tomato position (floating-point precision)
             self.tomaatti_position[0] += direction_x * self.tomaatti_speed
             self.tomaatti_position[1] += direction_y * self.tomaatti_speed
 
-            # Update the rect with rounded integer position for drawing
             self.tomaattiRect.x = int(self.tomaatti_position[0])
             self.tomaattiRect.y = int(self.tomaatti_position[1])
             
-            # Check for collision with the target
             if self.tomaattiRect.colliderect(self.target.rect):
-                # Stop the tomato's motion
                 self.tomaatti_in_motion = False
                 self.splat_shown = True
-                self.splatsound.play()  # Play splash sound when tomato hits the target
-                # Remove flying sound stop code
-                # self.flyingsound.stop()  # Stop flying sound
-                # self.flyingsound_playing = False
+                self.splatsound.play()
                 
-                # Determine a random hit position within the top 40% of the target
                 target_x, target_y = self.target.rect.topleft
                 target_width, target_height = self.target.rect.size
 
-                # Calculate the y-coordinate range for the top 40% of the target
                 top_y = target_y
                 bottom_y = target_y + int(target_height * 0.55)
 
-                # Random hit position within the top 40% of the target
                 hit_x = random.randint(target_x, target_x + target_width)
                 hit_y = random.randint(top_y, bottom_y)
                 
-                # Set splash position to the random hit position
                 self.splatRect.center = (hit_x, hit_y)
-                
-                # Calculate hit probability based on distance
                 
                 hit_probability = 0.40
 
                 print('Osuman mahdollisuus: ', hit_probability)
-                # Update score based on the calculated hit probability
                 if random.random() < hit_probability:
                     self.score += 1
 
-                # Reset tomato position next to the player after the splash
                 self.tomaatti_position = [self.rect.x + 80, self.rect.y + 10]
                 self.tomaattiRect.topleft = (int(self.tomaatti_position[0]), int(self.tomaatti_position[1]))
 
     def update(self, screen):
-        """Update the image and tomato in the game loop."""
         self.draw(screen)
         self.update_tomato_position()
