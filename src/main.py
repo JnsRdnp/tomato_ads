@@ -4,8 +4,13 @@ import threading
 from image import Image
 from button import Button
 
-def throw_tomato(image, target):
-    image.start_throw_tomato(target)
+def throw_tomato(image, target, secondtarget):
+    if image.score <= 1:
+        image.start_throw_tomato(target)
+    else:
+        image.start_throw_tomato(secondtarget)
+
+
     while image.tomaatti_in_motion:
         image.update_tomato_position()
         pygame.time.delay(1)
@@ -52,15 +57,15 @@ def main():
 
             if ernestiHeitto.is_clicked(event):
                 print("Ernesti heitti")
-                threading.Thread(target=throw_tomato, args=(ernesti, maalitaulu)).start()
+                threading.Thread(target=throw_tomato, args=(ernesti, maalitaulu, kernesti)).start()
 
             if kernestiHeitto.is_clicked(event):
                 print("Kernesti heitti")
-                threading.Thread(target=throw_tomato, args=(kernesti, maalitaulu)).start()
+                threading.Thread(target=throw_tomato, args=(kernesti, maalitaulu, ernesti)).start()
 
             if heitto.is_clicked(event):
-                threading.Thread(target=throw_tomato, args=(ernesti, maalitaulu)).start()
-                threading.Thread(target=throw_tomato, args=(kernesti, maalitaulu)).start()
+                threading.Thread(target=throw_tomato, args=(ernesti, maalitaulu, kernesti)).start()
+                threading.Thread(target=throw_tomato, args=(kernesti, maalitaulu, ernesti)).start()
 
         screen.fill((0, 128, 255))
 
