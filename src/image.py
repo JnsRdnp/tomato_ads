@@ -26,13 +26,21 @@ class Image:
             self.splatRect = self.splatImage.get_rect()
 
             self.tomaatti_in_motion = False
-            self.tomaatti_speed = 0.15  # Slower speed
+            self.tomaatti_speed = 0.8  # Slower speed
 
             self.splat_shown = False
             self.tomaatti_position = [0.0, 0.0]  # Use floating-point position
             self.score = 0  # Initialize score
 
             self.font = pygame.font.SysFont(None, 36)  # Font for displaying score
+
+            # Remove sound initialization
+            # pygame.mixer.init()
+            # self.flyingsound = pygame.mixer.Sound(os.path.join("assets", "flyingsound.wav"))
+            self.splatsound = pygame.mixer.Sound(os.path.join("assets", "splatsound.wav"))
+
+            # self.flyingsound.set_volume(0.5)  # Adjust volume as needed
+            # self.flyingsound_playing = False
 
     def resize(self, width, height):
         self.image = pygame.transform.scale(self.original_image, (width, height))
@@ -77,6 +85,11 @@ class Image:
         self.tomaatti_in_motion = True
         self.target = target
         self.splat_shown = False
+        
+        # Remove flying sound play code
+        # if not self.flyingsound_playing:
+        #     self.flyingsound.play(-1)  # Play the sound in a loop
+        #     self.flyingsound_playing = True
 
     def update_tomato_position(self):
         """Updates the tomato's position if it's being thrown."""
@@ -107,6 +120,10 @@ class Image:
                 # Stop the tomato's motion
                 self.tomaatti_in_motion = False
                 self.splat_shown = True
+                self.splatsound.play()  # Play splash sound when tomato hits the target
+                # Remove flying sound stop code
+                # self.flyingsound.stop()  # Stop flying sound
+                # self.flyingsound_playing = False
                 
                 # Determine a random hit position within the top 40% of the target
                 target_x, target_y = self.target.rect.topleft
@@ -123,14 +140,18 @@ class Image:
                 # Set splash position to the random hit position
                 self.splatRect.center = (hit_x, hit_y)
                 
-                # Update score with 50% chance of hitting
-                if random.random() < 0.5:  # 50% chance to hit
+                # Calculate hit probability based on distance
+                
+                hit_probability = 0.40
+
+                print('Osuman mahdollisuus: ', hit_probability)
+                # Update score based on the calculated hit probability
+                if random.random() < hit_probability:
                     self.score += 1
 
                 # Reset tomato position next to the player after the splash
                 self.tomaatti_position = [self.rect.x + 80, self.rect.y + 10]
                 self.tomaattiRect.topleft = (int(self.tomaatti_position[0]), int(self.tomaatti_position[1]))
-
 
     def update(self, screen):
         """Update the image and tomato in the game loop."""
