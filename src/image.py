@@ -12,10 +12,7 @@ class Image:
         self.rect = self.image.get_rect()
 
         self.isPlayer = player
-        # Tomaatti 
         if self.isPlayer:
-
-
             self.tomaatti_path = os.path.join("assets", "tomaatti.png")
             self.splat_path = os.path.join("assets", "splat.png")
 
@@ -29,10 +26,13 @@ class Image:
             self.splatRect = self.splatImage.get_rect()
 
             self.tomaatti_in_motion = False
-            self.tomaatti_speed = 0.5  # Slower speed
+            self.tomaatti_speed = 0.15  # Slower speed
 
             self.splat_shown = False
             self.tomaatti_position = [0.0, 0.0]  # Use floating-point position
+            self.score = 0  # Initialize score
+
+            self.font = pygame.font.SysFont(None, 36)  # Font for displaying score
 
     def resize(self, width, height):
         self.image = pygame.transform.scale(self.original_image, (width, height))
@@ -62,13 +62,14 @@ class Image:
 
     def draw(self, screen):
         screen.blit(self.image, self.rect.topleft)
-
-
         if self.isPlayer:
             screen.blit(self.tomaattiImage, self.tomaattiRect.topleft)
             if self.splat_shown:
                 screen.blit(self.splatImage, self.splatRect.topleft)
-
+            
+            # Display the score
+            score_text = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
+            screen.blit(score_text, (self.rect.x, self.rect.y + self.rect.height + 10))
 
     def start_throw_tomato(self, target):
         """Initiates the tomato throw towards the target."""
@@ -113,7 +114,7 @@ class Image:
 
                 # Calculate the y-coordinate range for the top 40% of the target
                 top_y = target_y
-                bottom_y = target_y + int(target_height * 0.4)
+                bottom_y = target_y + int(target_height * 0.55)
 
                 # Random hit position within the top 40% of the target
                 hit_x = random.randint(target_x, target_x + target_width)
@@ -122,6 +123,10 @@ class Image:
                 # Set splash position to the random hit position
                 self.splatRect.center = (hit_x, hit_y)
                 
+                # Update score with 50% chance of hitting
+                if random.random() < 0.5:  # 50% chance to hit
+                    self.score += 1
+
                 # Reset tomato position next to the player after the splash
                 self.tomaatti_position = [self.rect.x + 80, self.rect.y + 10]
                 self.tomaattiRect.topleft = (int(self.tomaatti_position[0]), int(self.tomaatti_position[1]))
